@@ -43,6 +43,12 @@ type DeschedulerServer struct {
 	EventClient    clientset.Interface
 	SecureServing  *apiserveroptions.SecureServingOptionsWithLoopback
 	DisableMetrics bool
+
+	// TODO: Enable Transport certificate credentials
+	OtelCollector      string
+	OtelTransportCert  string
+	OtelTraceName      string
+	OtelTraceNamespace string
 }
 
 // NewDeschedulerServer creates a new DeschedulerServer with default parameters
@@ -89,7 +95,10 @@ func (rs *DeschedulerServer) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&rs.PolicyConfigFile, "policy-config-file", rs.PolicyConfigFile, "File with descheduler policy configuration.")
 	fs.BoolVar(&rs.DryRun, "dry-run", rs.DryRun, "execute descheduler in dry run mode.")
 	fs.BoolVar(&rs.DisableMetrics, "disable-metrics", rs.DisableMetrics, "Disables metrics. The metrics are by default served through https://localhost:10258/metrics. Secure address, resp. port can be changed through --bind-address, resp. --secure-port flags.")
-
+	fs.StringVar(&rs.OtelCollector, "otel-endpoint", "", "Set this flag to the OpenTelemetry Collector Service Address")
+	fs.StringVar(&rs.OtelTransportCert, "otel-transport-ca-cert", "", "Path of the CA Cert that can be used to generate the client Certificate for establishing secure connection to the OTEL in gRPC mode")
+	fs.StringVar(&rs.OtelTraceName, "otel-trace-name", "descheduler_trace", "OTEL Trace name to be used with the resources")
+	fs.StringVar(&rs.OtelTraceNamespace, "otel-trace-namespace", "", "OTEL Trace namespace to be used with the resources")
 	componentbaseoptions.BindLeaderElectionFlags(&rs.LeaderElection, fs)
 
 	rs.SecureServing.AddFlags(fs)

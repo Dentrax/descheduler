@@ -27,6 +27,7 @@ import (
 
 	"sigs.k8s.io/descheduler/cmd/descheduler/app/options"
 	"sigs.k8s.io/descheduler/pkg/descheduler"
+	"sigs.k8s.io/descheduler/pkg/tracing"
 
 	"github.com/spf13/cobra"
 
@@ -85,6 +86,12 @@ func NewDeschedulerCommand(out io.Writer) *cobra.Command {
 			stoppedCh, _, err := SecureServing.Serve(pathRecorderMux, 0, ctx.Done())
 			if err != nil {
 				klog.Fatalf("failed to start secure server: %v", err)
+				return
+			}
+
+			_, err = tracing.NewTraceConfig(s.OtelCollector, s.OtelTransportCert, s.OtelTraceName, s.OtelTraceNamespace)
+			if err != nil {
+				klog.Fatalf("failed to setup tracing provider", "err", err)
 				return
 			}
 
