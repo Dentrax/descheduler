@@ -250,9 +250,9 @@ type RunFunc func(ctx context.Context, nodes []*v1.Node) *framework.Status
 // RunPlugin runs a plugin.
 func RunPlugin(plugin framework.Plugin, runFn RunFunc, operationName, pluginName string) func(ctx context.Context, nodes []*v1.Node) {
 	return func(ctx context.Context, nodes []*v1.Node) {
-		_, span, closer := tracing.StartSpan(ctx, plugin.Name(), operationName)
+		spanCtx, span, closer := tracing.StartSpan(ctx, plugin.Name(), operationName)
 		defer closer()
-		status := runFn(ctx, nodes)
+		status := runFn(spanCtx, nodes)
 		if status != nil && status.Err != nil {
 			span.RecordError(status.Err)
 			klog.V(1).ErrorS(status.Err, "plugin finished with error", "pluginName", pluginName)
