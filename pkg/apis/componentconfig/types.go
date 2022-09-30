@@ -54,10 +54,30 @@ type DeschedulerConfiguration struct {
 	// IgnorePVCPods sets whether PVC pods should be allowed to be evicted
 	IgnorePVCPods bool
 
+	// Tracing specifies the options for tracing.
+	Tracing TracingConfiguration
+
 	// LeaderElection starts Deployment using leader election loop
 	LeaderElection componentbaseconfig.LeaderElectionConfiguration
 
 	// Logging specifies the options of logging.
 	// Refer [Logs Options](https://github.com/kubernetes/component-base/blob/master/logs/api/v1/options.go) for more information.
 	Logging registry.LoggingConfiguration
+}
+
+// TracingConfiguration contains tracing options.
+// TODO: Enable Transport certificate credentials
+type TracingConfiguration struct {
+	// OtelCollector is the address of the OpenTelemetry collector.
+	// If not specified, tracing will be used NoopTraceProvider.
+	OtelCollector string
+	// OtelTransportCert is the path to the certificate file for the OpenTelemetry collector.
+	// If not specified, provider will start in insecure mode.
+	OtelTransportCert string
+	// OtelTraceName is the name of the service to be used in the OpenTelemetry collector.
+	// If not specified, the default value is "descheduler_traces".
+	OtelTraceName string
+	// OtelTraceNamespace is the namespace of the service to be used in the OpenTelemetry collector.
+	// If not specified, tracing will be used default namespace.
+	OtelTraceNamespace string
 }

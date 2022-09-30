@@ -43,7 +43,6 @@ import (
 // NewDeschedulerCommand creates a *cobra.Command object with default parameters
 func NewDeschedulerCommand(out io.Writer) *cobra.Command {
 	s, err := options.NewDeschedulerServer()
-
 	if err != nil {
 		klog.ErrorS(err, "unable to initialize server")
 	}
@@ -89,11 +88,12 @@ func NewDeschedulerCommand(out io.Writer) *cobra.Command {
 				return
 			}
 
-			_, err = tracing.NewTraceConfig(s.OtelCollector, s.OtelTransportCert, s.OtelTraceName, s.OtelTraceNamespace)
+			tracerProvider, err := tracing.NewTracerProvider(s.Tracing.OtelCollector, s.Tracing.OtelTransportCert, s.Tracing.OtelTraceName, s.Tracing.OtelTraceNamespace)
 			if err != nil {
 				klog.Fatalf("failed to setup tracing provider", "err", err)
 				return
 			}
+			defer tracing.Shutdown(ctx, tracerProvider)
 
 			err = Run(ctx, s)
 			if err != nil {
